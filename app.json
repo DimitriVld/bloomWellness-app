@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "bloomHealth-app",
-    "slug": "bloomHealth-app",
+    "name": "bloomWellness-app",
+    "slug": "bloomWellness-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "bloomhealthapp",
+    "scheme": "bloomwellnessapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
