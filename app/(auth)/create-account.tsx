@@ -1,2 +1,2 @@
-import CreateAccountScreen from "@/screens/createAccount/createAccount";
+import CreateAccountScreen from "@/screens/createAccount/CreateAccount";
 export default CreateAccountScreen;

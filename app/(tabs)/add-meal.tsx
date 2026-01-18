@@ -1,2 +1,2 @@
-import AddMealScreen from "@/screens/addMeal/addMeal";
+import AddMealScreen from "@/screens/addMeal/AddMeal";
 export default AddMealScreen;
