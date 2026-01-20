@@ -2,13 +2,13 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, User } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDe8klSw9cGZKLZSj3_IvoblMaV0IylMeo",
-  authDomain: "bloom-wellness-4bde0.firebaseapp.com",
-  projectId: "bloom-wellness-4bde0",
-  storageBucket: "bloom-wellness-4bde0.firebasestorage.app",
-  messagingSenderId: "43899980709",
-  appId: "1:43899980709:web:dbec174d73a65c35e2b64c",
-  measurementId: "G-B7ZTC6R62H"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
