@@ -16,7 +16,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.dimitrivld.bloomWellness-app"
+      "bundleIdentifier": "com.dimitrivld.bloomWellness-app",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "edgeToEdgeEnabled": true,

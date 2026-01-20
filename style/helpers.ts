@@ -1,13 +1,13 @@
 import { StyleSheet } from 'react-native';
-import { spacing } from './spacing';
 import { colors } from './colors';
+import { spacing } from './spacing';
 
 const helpersStyles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#F2EDE6',
+    backgroundColor: colors.white,
   },
   containerWithoutBackground: {
     flex: 1,
@@ -26,9 +26,6 @@ const helpersStyles = StyleSheet.create({
   paddingBottom0: {
     paddingBottom: 0,
   },
-  backgroundContainer : {
-    backgroundColor: '#F2EDE6',
-  },
   marginTopSm: {
     marginTop: spacing.sm,
   },
@@ -41,6 +38,12 @@ const helpersStyles = StyleSheet.create({
   buttonPrimaryText: {
     color: colors.white,
     fontWeight: "500",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.primaryDark,
   },
 });
 
