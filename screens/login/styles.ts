@@ -8,10 +8,10 @@ const loginStyles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   header: {
-    height: 280,
+    height: 340,
     backgroundColor: colors.primaryDark,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: spacing.lg,
@@ -42,7 +42,6 @@ const loginStyles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.03)",
   },
 
-  // Logo
   logoContainer: {
     width: 70,
     height: 70,
@@ -51,10 +50,11 @@ const loginStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
+    marginTop: -spacing.xxl,
   },
   logo: {
-    width: 45,
-    height: 45,
+    width: 70,
+    height: 70,
   },
 
   headerTitle: {
@@ -71,7 +71,7 @@ const loginStyles = StyleSheet.create({
 
   formWrapper: {
     flex: 1,
-    marginTop: -40,
+    marginTop: -30,
   },
   formCard: {
     flex: 1,

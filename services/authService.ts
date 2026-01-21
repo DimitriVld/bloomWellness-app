@@ -22,6 +22,7 @@ export const signUpWithEmail = async (email: string, password: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     return { user: userCredential.user, error: null };
   } catch (error: any) {
+    console.log(error)
     return { user: null, error: getErrorMessage(error.code) };
   }
 };
