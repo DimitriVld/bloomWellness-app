@@ -56,9 +56,6 @@ const ForgotPasswordScreen = () => {
     router.back();
   };
 
-  // ═══════════════════════════════════════════════════════════════
-  // RENDER - EMAIL ENVOYÉ
-  // ═══════════════════════════════════════════════════════════════
   if (sent) {
     return (
       <View style={forgotPasswordStyles.container}>
@@ -92,19 +89,12 @@ const ForgotPasswordScreen = () => {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // RENDER - FORMULAIRE
-  // ═══════════════════════════════════════════════════════════════
   return (
     <View style={forgotPasswordStyles.container}>
       <StatusBar barStyle="light-content" />
-
-      {/* Header */}
       <View style={[forgotPasswordStyles.header, { paddingTop: insets.top + 20 }]}>
         <View style={forgotPasswordStyles.decorCircle1} />
         <View style={forgotPasswordStyles.decorCircle2} />
-
-        {/* Back Button */}
         <TouchableOpacity style={forgotPasswordStyles.backArrow} onPress={goBack}>
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
@@ -118,7 +108,6 @@ const ForgotPasswordScreen = () => {
         </Text>
       </View>
 
-      {/* Form Card */}
       <KeyboardAvoidingView
         style={forgotPasswordStyles.formWrapper}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -152,7 +141,6 @@ const ForgotPasswordScreen = () => {
             style={forgotPasswordStyles.sendButton}
           />
 
-          {/* Footer */}
           <TouchableOpacity style={forgotPasswordStyles.footer} onPress={goBack}>
             <Ionicons name="arrow-back" size={16} color={colors.gray} />
             <Text style={forgotPasswordStyles.footerText}> Retour à la connexion</Text>

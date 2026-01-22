@@ -1,11 +1,32 @@
+import CustomTabBar from "@/components/CustomTabBar";
 import { Tabs } from "expo-router";
 
 export default function TabsLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
-      <Tabs.Screen name="home" options={{ title: "Home" }} />
-      <Tabs.Screen name="add-meal" options={{ title: "Add meal" }} />
-      {/* <Tabs.Screen name="account" options={{ title: "Account" }} /> */}
+    <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: "Accueil",
+        }}
+      />
+      <Tabs.Screen
+        name="add-meal"
+        options={{
+          title: "Ajouter",
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profil",
+        }}
+      />
     </Tabs>
   );
 }
