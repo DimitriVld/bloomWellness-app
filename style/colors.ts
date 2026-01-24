@@ -14,4 +14,12 @@ export const colors = {
   darkGray: '#4B5563',
   red: '#EF4444',
   green: '#22C55E',
+  orange: '#F59E0B',
+  blue: '#3B82F6',
+  purple: '#8B5CF6',
+  
+  whiteOpacity15: 'rgba(255, 255, 255, 0.15)',
+  whiteOpacity60: 'rgba(255, 255, 255, 0.6)',
+  whiteOpacity70: 'rgba(255, 255, 255, 0.7)',
+  primaryOpacity20: 'rgba(16, 185, 129, 0.2)',
 };
