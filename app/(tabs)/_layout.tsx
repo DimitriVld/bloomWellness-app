@@ -22,7 +22,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="account"
         options={{
           title: "Profil",
         }}

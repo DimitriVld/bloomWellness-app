@@ -1,191 +1,137 @@
-import useUserProfile from "@/hooks/useUserProfile";
-import { signOut } from "@/services/authService";
-import { updateUserProfile } from "@/services/userService";
-import { colors } from "@/style/colors";
-import { spacing } from "@/style/spacing";
-import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import accountStyles from "./styles";
-
-const getInitials = (name: string | null, email: string | null): string => {
-  if (name) {
-    const parts = name.trim().split(" ");
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  }
-  if (email) {
-    return email.substring(0, 2).toUpperCase();
-  }
-  return "?";
-};
+import GoalCard from '@/components/GoalCard';
+import MenuItem from '@/components/MenuItem';
+import ProfileHeader from '@/components/ProfileHeader';
+import StatCard from '@/components/StatCard';
+import useUserProfile from '@/hooks/useUserProfile';
+import { signOut } from '@/services/authService';
+import { colors } from '@/style/colors';
+import { spacing } from '@/style/spacing';
+import { router } from 'expo-router';
+import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import styles from './styles';
 
 const AccountScreen = () => {
   const insets = useSafeAreaInsets();
-  const { profile, isLoading, refetch } = useUserProfile();
+  const { profile, isLoading } = useUserProfile();
 
-  const [displayName, setDisplayName] = useState(profile?.displayName || "");
-  const [isSaving, setIsSaving] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  const hasChanges = displayName !== (profile?.displayName || "");
-
-  const handleSave = async () => {
-    if (!profile?.uid || !hasChanges) return;
-
-    setIsSaving(true);
-    const { error } = await updateUserProfile(profile.uid, {
-      displayName: displayName.trim() || null,
-    });
-    setIsSaving(false);
-
-    if (error) {
-      Alert.alert("Erreur", error);
-      return;
-    }
-
-    await refetch();
-    Alert.alert("Succès", "Profil mis à jour");
+  // Données mock (à remplacer plus tard)
+  const stats = {
+    streak: 12,
+    averageGoal: 84,
   };
 
-  const handleLogout = () => {
+  const goals = {
+    calories: 2200,
+    protein: 130,
+    carbs: 280,
+    fat: 75,
+  };
+
+  const handleEditProfile = () => {
+    Alert.alert('Bientôt', 'Cette fonctionnalité arrive bientôt !');
+  };
+
+  const handleEditGoals = () => {
+    Alert.alert('Bientôt', 'Cette fonctionnalité arrive bientôt !');
+  };
+
+  const handleSignOut = () => {
     Alert.alert(
-      "Déconnexion",
-      "Êtes-vous sûr de vouloir vous déconnecter ?",
+      'Déconnexion',
+      'Es-tu sûr de vouloir te déconnecter ?',
       [
-        { text: "Annuler", style: "cancel" },
+        { text: 'Annuler', style: 'cancel' },
         {
-          text: "Déconnexion",
-          style: "destructive",
+          text: 'Déconnexion',
+          style: 'destructive',
           onPress: async () => {
-            setIsLoggingOut(true);
             await signOut();
+            router.replace('/(auth)/login');
           },
         },
       ]
     );
   };
 
-  // Sync local state when profile loads
-  useEffect(() => {
-    if (profile?.displayName && displayName === "") {
-      setDisplayName(profile.displayName);
-    }
-  }, [profile?.displayName]);
+  const handleComingSoon = () => {
+    Alert.alert('Bientôt', 'Cette fonctionnalité arrive bientôt !');
+  };
 
   if (isLoading) {
     return (
-      <View style={[accountStyles.container, { justifyContent: "center", alignItems: "center" }]}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
+  const displayName = profile?.displayName || profile?.email?.split('@')[0] || 'Utilisateur';
+  const email = profile?.email || '';
+
   return (
     <ScrollView
-      style={accountStyles.container}
-      contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xxl }}
+      style={styles.container}
+      contentContainerStyle={{
+        paddingTop: insets.top + spacing.lg,
+        paddingBottom: 150,
+        paddingHorizontal: spacing.md,
+      }}
+      showsVerticalScrollIndicator={false}
     >
-      <View style={[accountStyles.header, { paddingTop: insets.top + spacing.md }]}>
-        <Text style={accountStyles.title}>Mon profil</Text>
+      {/* Profile Header */}
+      <ProfileHeader
+        name={displayName}
+        email={email}
+        avatarUrl={profile?.photoURL || undefined}
+        onEditPress={handleEditProfile}
+      />
 
-        <View style={accountStyles.avatarContainer}>
-          {profile?.photoURL ? (
-            <Image
-              source={{ uri: profile.photoURL }}
-              style={accountStyles.avatarImage}
-            />
-          ) : (
-            <View style={accountStyles.avatar}>
-              <Text style={accountStyles.avatarText}>
-                {getInitials(profile?.displayName || null, profile?.email || null)}
-              </Text>
-            </View>
-          )}
-          <TouchableOpacity
-            style={accountStyles.editAvatarButton}
-            onPress={() => Alert.alert("Info", "Changement de photo bientôt disponible")}
-          >
-            <Ionicons name="camera" size={16} color="white" />
-          </TouchableOpacity>
-        </View>
-
-        <Text style={accountStyles.userName}>
-          {profile?.displayName || "Utilisateur"}
-        </Text>
-        <Text style={accountStyles.userEmail}>{profile?.email}</Text>
+      {/* Stats Cards */}
+      <View style={styles.statsRow}>
+        <StatCard icon="🔥" value={String(stats.streak)} label="Jours de streak" />
+        <View style={styles.statsSpacer} />
+        <StatCard icon="📊" value={`${stats.averageGoal}%`} label="Objectif moyen" />
       </View>
 
-      <View style={accountStyles.content}>
-        <View style={accountStyles.section}>
-          <Text style={accountStyles.sectionTitle}>Informations</Text>
-
-          <View style={accountStyles.inputContainer}>
-            <Ionicons
-              name="person-outline"
-              size={20}
-              color={colors.gray}
-              style={accountStyles.inputIcon}
-            />
-            <TextInput
-              style={accountStyles.input}
-              value={displayName}
-              onChangeText={setDisplayName}
-              placeholder="Votre nom"
-              placeholderTextColor={colors.lightGray}
-              autoCapitalize="words"
-            />
-            {hasChanges && (
-              <TouchableOpacity
-                style={accountStyles.saveButton}
-                onPress={handleSave}
-                disabled={isSaving}
-              >
-                {isSaving ? (
-                  <ActivityIndicator size="small" color="white" />
-                ) : (
-                  <Text style={accountStyles.saveButtonText}>Enregistrer</Text>
-                )}
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        <View style={accountStyles.section}>
-          <Text style={accountStyles.sectionTitle}>Email</Text>
-          <View style={accountStyles.infoRow}>
-            <Ionicons name="mail-outline" size={20} color={colors.gray} />
-            <Text style={accountStyles.infoText}>{profile?.email}</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          style={accountStyles.logoutButton}
-          onPress={handleLogout}
-          disabled={isLoggingOut}
-        >
-          {isLoggingOut ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <>
-              <Ionicons name="log-out-outline" size={20} color="white" />
-              <Text style={accountStyles.logoutButtonText}>Se déconnecter</Text>
-            </>
-          )}
-        </TouchableOpacity>
+      {/* Goal Card */}
+      <View style={styles.goalCardContainer}>
+        <GoalCard
+          title="Objectif quotidien"
+          calories={goals.calories}
+          protein={goals.protein}
+          carbs={goals.carbs}
+          fat={goals.fat}
+          onEditPress={handleEditGoals}
+        />
       </View>
+
+      {/* Section Préférences */}
+      <Text style={styles.sectionTitle}>PRÉFÉRENCES</Text>
+      <MenuItem icon="person-outline" label="Modifier le profil" onPress={handleEditProfile} />
+      <MenuItem icon="flag-outline" label="Objectifs" value={`${goals.calories} kcal`} onPress={handleEditGoals} />
+      <MenuItem icon="notifications-outline" label="Notifications" onPress={handleComingSoon} />
+      <MenuItem icon="moon-outline" label="Apparence" value="Auto" onPress={handleComingSoon} />
+
+      {/* Section Autres */}
+      <Text style={styles.sectionTitle}>AUTRES</Text>
+      <MenuItem icon="help-circle-outline" label="Aide & Support" onPress={handleComingSoon} />
+      <MenuItem icon="document-text-outline" label="Conditions d'utilisation" onPress={handleComingSoon} />
+      <MenuItem icon="shield-checkmark-outline" label="Politique de confidentialité" onPress={handleComingSoon} />
+
+      {/* Déconnexion */}
+      <View style={styles.logoutContainer}>
+        <MenuItem
+          icon="log-out-outline"
+          label="Déconnexion"
+          onPress={handleSignOut}
+          danger
+          showChevron={false}
+        />
+      </View>
+
+      {/* Version */}
+      <Text style={styles.version}>Version 1.0.0</Text>
     </ScrollView>
   );
 };
