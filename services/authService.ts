@@ -7,6 +7,7 @@ import {
   signInWithEmailAndPassword,
   User,
 } from "firebase/auth";
+import { createUserProfile } from "./userService";
 
 export const signInWithEmail = async (email: string, password: string) => {
   try {
@@ -20,9 +21,14 @@ export const signInWithEmail = async (email: string, password: string) => {
 export const signUpWithEmail = async (email: string, password: string) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return { user: userCredential.user, error: null };
+    const user = userCredential.user;
+
+    // Créer le profil utilisateur dans Firestore
+    await createUserProfile(user.uid, user.email || email);
+
+    return { user, error: null };
   } catch (error: any) {
-    console.log(error)
+    console.log(error);
     return { user: null, error: getErrorMessage(error.code) };
   }
 };
