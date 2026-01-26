@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { UserProfile } from "@/types/user";
+import { UserProfile, UserGoals, DEFAULT_USER_GOALS } from "@/types/user";
 import {
   doc,
   getDoc,
@@ -54,6 +54,10 @@ export const getUserProfile = async (
         email: data.email,
         displayName: data.displayName,
         photoURL: data.photoURL,
+        goals: data.goals || DEFAULT_USER_GOALS,
+        weight: data.weight,
+        height: data.height,
+        activityLevel: data.activityLevel,
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate() || new Date(),
       },
@@ -67,7 +71,7 @@ export const getUserProfile = async (
 
 export const updateUserProfile = async (
   uid: string,
-  updates: Partial<Pick<UserProfile, "displayName" | "photoURL">>
+  updates: Partial<Pick<UserProfile, "displayName" | "photoURL" | "weight" | "height" | "activityLevel">>
 ): Promise<{ success: boolean; error: string | null }> => {
   try {
     const userRef = doc(db, USERS_COLLECTION, uid);
@@ -79,5 +83,29 @@ export const updateUserProfile = async (
   } catch (error: any) {
     console.error("Erreur mise à jour profil:", error);
     return { success: false, error: "Erreur lors de la mise à jour du profil" };
+  }
+};
+
+export const updateUserGoals = async (
+  uid: string,
+  goals: Partial<UserGoals>
+): Promise<{ success: boolean; error: string | null }> => {
+  try {
+    const userRef = doc(db, USERS_COLLECTION, uid);
+
+    // Récupérer les goals actuels pour merger
+    const userSnap = await getDoc(userRef);
+    const currentGoals = userSnap.exists()
+      ? userSnap.data().goals || DEFAULT_USER_GOALS
+      : DEFAULT_USER_GOALS;
+
+    await updateDoc(userRef, {
+      goals: { ...currentGoals, ...goals },
+      updatedAt: serverTimestamp(),
+    });
+    return { success: true, error: null };
+  } catch (error: any) {
+    console.error("Erreur mise à jour objectifs:", error);
+    return { success: false, error: "Erreur lors de la mise à jour des objectifs" };
   }
 };

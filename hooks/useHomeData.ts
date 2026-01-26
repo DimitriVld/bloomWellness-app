@@ -1,40 +1,13 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { CalorieData, DailyCalories, MacrosData, Period } from '@/types/home';
 import { Meal } from '@/types/meal';
-
-// Mock data
-const mockCalorieData = {
-  consumed: 1847,
-  goal: 2200,
-};
-
-const calculatePercentage = (consumed: number, goal: number): number => {
-  if (goal <= 0) return 0;
-  return Math.round((consumed / goal) * 100);
-};
-
-const mockMacrosData: MacrosData = {
-  protein: { value: 95, goal: 130 },
-  carbs: { value: 180, goal: 280 },
-  fat: { value: 65, goal: 75 },
-};
-
-const mockWeeklyData: DailyCalories[] = [
-  { day: 'L', value: 1650, isToday: false },
-  { day: 'M', value: 1890, isToday: false },
-  { day: 'M', value: 1720, isToday: false },
-  { day: 'J', value: 2100, isToday: false },
-  { day: 'V', value: 1800, isToday: false },
-  { day: 'S', value: 1950, isToday: false },
-  { day: 'D', value: 1847, isToday: true },
-];
-
-const mockMealsData: Meal[] = [
-  { id: '1', emoji: '🥐', name: 'Petit-déjeuner', calories: 420, time: '08:30', mealType: 'breakfast' },
-  { id: '2', emoji: '🥗', name: 'Déjeuner', calories: 650, time: '12:45', mealType: 'lunch' },
-  { id: '3', emoji: '🍎', name: 'Collation', calories: 120, time: '16:00', mealType: 'snack' },
-  { id: '4', emoji: '🍝', name: 'Dîner', calories: 657, time: '19:30', mealType: 'dinner' },
-];
+import { HydrationEntry, DrinkOption, DrinkType } from '@/types/hydration';
+import { DEFAULT_USER_GOALS } from '@/types/user';
+import { useDailyMeals } from './useDailyMeals';
+import { useDailyStats } from './useDailyStats';
+import { useHydration } from './useHydration';
+import { useWeeklyStats } from './useWeeklyStats';
+import { useUserProfile } from './useUserProfile';
 
 export interface HomeData {
   calorieData: CalorieData;
@@ -45,43 +18,127 @@ export interface HomeData {
   waterGoal: number;
   selectedDate: Date;
   period: Period;
+  isLoading: boolean;
+  // Hydration data
+  hydrationMl: number;
+  hydrationGoalMl: number;
+  hydrationPercentage: number;
+  hydrationEntries: HydrationEntry[];
+  drinkOptions: DrinkOption[];
+  // Actions
   addWaterGlass: () => void;
   removeWaterGlass: () => void;
+  addDrink: (drinkOptionId: string) => Promise<void>;
   setSelectedDate: (date: Date) => void;
   setPeriod: (period: Period) => void;
 }
 
 const useHomeData = (): HomeData => {
-  const [waterGlasses, setWaterGlasses] = useState(5);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [period, setPeriod] = useState<Period>('day');
 
-  const waterGoal = 8;
+  // Hooks réels avec données Firestore
+  const { profile } = useUserProfile();
+  const { meals, isLoading: mealsLoading } = useDailyMeals(selectedDate);
+  const { stats, isLoading: statsLoading } = useDailyStats(selectedDate);
+  const {
+    totalMl,
+    goalMl,
+    percentage: hydrationPercentage,
+    entries: hydrationEntries,
+    addDrink,
+    addCustomDrink,
+    drinkOptions,
+    isLoading: hydrationLoading,
+  } = useHydration(selectedDate);
+  const { stats: weeklyStats, isLoading: weeklyLoading } = useWeeklyStats();
 
-  const addWaterGlass = useCallback(() => {
-    setWaterGlasses((prev) => Math.min(prev + 1, waterGoal));
-  }, [waterGoal]);
+  const goals = profile?.goals || DEFAULT_USER_GOALS;
+  const isLoading =
+    mealsLoading || statsLoading || hydrationLoading || weeklyLoading;
+
+  // Compatibilité avec l'ancien système de verres d'eau
+  const waterGlasses = Math.round(totalMl / 250); // 250ml = 1 verre
+  const waterGoal = Math.round(goalMl / 250);
+
+  const addWaterGlass = useCallback(async () => {
+    // Ajouter un verre d'eau (250ml)
+    await addCustomDrink('water' as DrinkType, 250, "Verre d'eau");
+  }, [addCustomDrink]);
 
   const removeWaterGlass = useCallback(() => {
-    setWaterGlasses((prev) => Math.max(prev - 1, 0));
+    // Pour la compatibilité, on ne fait rien (la suppression se fait via l'écran hydratation)
   }, []);
 
-  const calorieData: CalorieData = {
-    ...mockCalorieData,
-    percentage: calculatePercentage(mockCalorieData.consumed, mockCalorieData.goal),
-  };
+  // Données calories depuis les stats calculées
+  const calorieData: CalorieData = useMemo(() => {
+    if (stats) {
+      return {
+        consumed: stats.calories.consumed,
+        goal: stats.calories.goal,
+        percentage: stats.calories.percentage,
+      };
+    }
+    return {
+      consumed: 0,
+      goal: goals.calories,
+      percentage: 0,
+    };
+  }, [stats, goals.calories]);
+
+  // Données macros depuis les stats calculées
+  const macrosData: MacrosData = useMemo(() => {
+    if (stats) {
+      return {
+        protein: stats.macros.protein,
+        carbs: stats.macros.carbs,
+        fat: stats.macros.fat,
+      };
+    }
+    return {
+      protein: { value: 0, goal: goals.protein },
+      carbs: { value: 0, goal: goals.carbs },
+      fat: { value: 0, goal: goals.fat },
+    };
+  }, [stats, goals]);
+
+  // Données hebdomadaires pour le graphique
+  const weeklyData: DailyCalories[] = useMemo(() => {
+    if (weeklyStats?.days) {
+      return weeklyStats.days.map((day) => ({
+        day: day.dayName,
+        value: day.calories,
+        isToday: day.isToday,
+      }));
+    }
+    // Données vides par défaut
+    return ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, index) => ({
+      day,
+      value: 0,
+      isToday: index === 6,
+    }));
+  }, [weeklyStats]);
 
   return {
     calorieData,
-    macrosData: mockMacrosData,
-    weeklyData: mockWeeklyData,
-    meals: mockMealsData,
+    macrosData,
+    weeklyData,
+    meals,
     waterGlasses,
     waterGoal,
     selectedDate,
     period,
+    isLoading,
+    // Hydration data
+    hydrationMl: totalMl,
+    hydrationGoalMl: goalMl,
+    hydrationPercentage,
+    hydrationEntries,
+    drinkOptions,
+    // Actions
     addWaterGlass,
     removeWaterGlass,
+    addDrink,
     setSelectedDate,
     setPeriod,
   };

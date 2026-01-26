@@ -3,7 +3,10 @@ import { FoodItem, Meal, MealType, NutritionInfo } from '@/types/meal';
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
+  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
@@ -11,6 +14,7 @@ import {
   where,
   limit as firestoreLimit,
 } from 'firebase/firestore';
+import { auth } from '@/config/firebase';
 
 const MEALS_COLLECTION = 'meals';
 
@@ -171,4 +175,67 @@ export const getTodayNutritionSummary = async (
   );
 
   return { data: summary, error: null };
+};
+
+/**
+ * Supprimer un repas
+ */
+export const deleteMeal = async (
+  mealId: string
+): Promise<{ success: boolean; error: string | null }> => {
+  try {
+    await deleteDoc(doc(db, MEALS_COLLECTION, mealId));
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Erreur suppression repas:', error);
+    return { success: false, error: 'Erreur lors de la suppression du repas' };
+  }
+};
+
+/**
+ * Listener temps réel pour les repas du jour
+ */
+export const subscribeToMeals = (
+  date: Date,
+  callback: (meals: Meal[]) => void
+): (() => void) => {
+  const user = auth.currentUser;
+  if (!user) {
+    callback([]);
+    return () => {};
+  }
+
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const q = query(
+    collection(db, MEALS_COLLECTION),
+    where('userId', '==', user.uid),
+    where('date', '>=', Timestamp.fromDate(startOfDay)),
+    where('date', '<=', Timestamp.fromDate(endOfDay)),
+    orderBy('date', 'desc')
+  );
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const meals = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          date: data.date?.toDate() || new Date(),
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } as Meal;
+      });
+      callback(meals);
+    },
+    (error) => {
+      console.error('Erreur subscription repas:', error);
+      callback([]);
+    }
+  );
 };

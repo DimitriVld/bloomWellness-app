@@ -2,7 +2,13 @@ import useHomeData from '@/hooks/useHomeData';
 import useUserProfile from '@/hooks/useUserProfile';
 import { colors } from '@/style/colors';
 import { spacing } from '@/style/spacing';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import homeStyles from './styles';
 
@@ -12,7 +18,7 @@ import MacroCard from '@/components/MacroCard';
 import MealItem from '@/components/MealItem';
 import MiniCalendar from '@/components/MiniCalendar';
 import PeriodSelector from '@/components/PeriodSelector';
-import WaterTracker from '@/components/WaterTracker';
+import HydrationWidget from '@/components/HydrationWidget';
 import WeeklyBarChart from '@/components/WeeklyBarChart';
 
 const getFormattedDate = (): string => {
@@ -32,11 +38,14 @@ const HomeScreen = () => {
     macrosData,
     weeklyData,
     meals,
-    waterGlasses, 
-    waterGoal,
     selectedDate,
     period,
-    addWaterGlass,
+    isLoading,
+    hydrationMl,
+    hydrationGoalMl,
+    hydrationPercentage,
+    drinkOptions,
+    addDrink,
     setSelectedDate,
     setPeriod,
   } = useHomeData();
@@ -107,11 +116,13 @@ const HomeScreen = () => {
           />
         </View>
 
-        {/* Water Tracker */}
-        <WaterTracker
-          current={waterGlasses}
-          goal={waterGoal}
-          onAdd={addWaterGlass}
+        {/* Hydration Widget */}
+        <HydrationWidget
+          current={hydrationMl}
+          goal={hydrationGoalMl}
+          percentage={hydrationPercentage}
+          onAddDrink={addDrink}
+          drinkOptions={drinkOptions}
         />
 
         {/* Calendar */}
@@ -135,15 +146,33 @@ const HomeScreen = () => {
             </TouchableOpacity>
           </View>
           <View style={homeStyles.mealsList}>
-            {meals.map((meal) => (
-              <MealItem
-                key={meal.id}
-                emoji={meal.emoji}
-                name={meal.name}
-                calories={meal.calories}
-                time={meal.time}
+            {isLoading ? (
+              <ActivityIndicator
+                size="small"
+                color={colors.primary}
+                style={{ padding: spacing.md }}
               />
-            ))}
+            ) : meals.length === 0 ? (
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: colors.gray,
+                  padding: spacing.md,
+                }}
+              >
+                Aucun repas ajouté aujourd'hui
+              </Text>
+            ) : (
+              meals.map((meal) => (
+                <MealItem
+                  key={meal.id}
+                  emoji={meal.emoji || '🍽️'}
+                  name={meal.name}
+                  calories={meal.calories || meal.nutrition?.calories || 0}
+                  time={meal.time}
+                />
+              ))
+            )}
           </View>
         </View>
 
