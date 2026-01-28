@@ -21,7 +21,7 @@ const { width } = Dimensions.get("window");
 const slides = [
   {
     id: "1",
-    image: require("@/assets/images/Bw-logo.png"),
+    image: require("@/assets/images/Bw-icon.png"),
     title: "Bienvenue sur",
     highlight: "Bloom Wellness",
     description: "Votre compagnon pour une vie plus saine et équilibrée",
@@ -93,7 +93,9 @@ const OnboardingScreen = () => {
     <View style={onboardingStyles.slide}>
       <View style={onboardingStyles.imageContainer}>
         {item.image ? (
-          <Image source={item.image} style={onboardingStyles.logo} resizeMode="contain" />
+          <View style={onboardingStyles.iconContainer}>
+            <Image source={item.image} style={onboardingStyles.logo} resizeMode="contain" />
+          </View>
         ) : (
           <View style={onboardingStyles.iconContainer}>
             <Text style={onboardingStyles.icon}>{item.icon}</Text>

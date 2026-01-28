@@ -1,9 +1,15 @@
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import GoogleIcon from "@/icons/GoogleIcon";
-import { signInWithEmail } from "@/services/authService";
+import AppleIcon from "@/icons/AppleIcon";
+import {
+  signInWithEmail,
+  signInWithGoogle,
+  signInWithApple,
+  isAppleSignInAvailable,
+} from "@/services/authService";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Alert,
   Image,
@@ -24,7 +30,18 @@ const LoginScreen = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
+  const [appleAvailable, setAppleAvailable] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+  // Vérifier si Apple Sign-In est disponible (iOS 13+)
+  useEffect(() => {
+    const checkAppleAvailability = async () => {
+      const available = await isAppleSignInAvailable();
+      setAppleAvailable(available);
+    };
+    checkAppleAvailability();
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};
@@ -66,12 +83,30 @@ const LoginScreen = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    Alert.alert(
-      "Bientôt disponible",
-      "La connexion Google sera disponible dans une prochaine version.\n\nUtilise email/mot de passe pour l'instant !",
-      [{ text: "OK" }]
-    );
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+
+    const { user, error } = await signInWithGoogle();
+
+    setGoogleLoading(false);
+
+    if (error) {
+      Alert.alert("Erreur", error);
+    }
+    // Si user est connecté, la navigation se fait automatiquement via useAuth
+  };
+
+  const handleAppleLogin = async () => {
+    setAppleLoading(true);
+
+    const { user, error } = await signInWithApple();
+
+    setAppleLoading(false);
+
+    if (error) {
+      Alert.alert("Erreur", error);
+    }
+    // Si user est connecté, la navigation se fait automatiquement via useAuth
   };
 
   const goToCreateAccount = () => {
@@ -164,9 +199,21 @@ const LoginScreen = () => {
             onPress={handleGoogleLogin}
             variant="google"
             loading={googleLoading}
-            disabled={loading}
+            disabled={loading || appleLoading}
             icon={<GoogleIcon />}
           />
+
+          {appleAvailable && (
+            <Button
+              title="Continuer avec Apple"
+              onPress={handleAppleLogin}
+              variant="apple"
+              loading={appleLoading}
+              disabled={loading || googleLoading}
+              icon={<AppleIcon />}
+              style={{ marginTop: 12 }}
+            />
+          )}
 
           <View style={loginStyles.footer}>
             <Text style={loginStyles.footerText}>Pas de compte ? </Text>

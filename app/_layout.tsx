@@ -1,11 +1,19 @@
 import { ONBOARDING_KEY } from "@/constants/global";
 import { useAuth } from "@/hooks/useAuth";
+import { configureGoogleSignIn } from "@/services/authService";
 import { colors } from "@/style/colors";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
+
+// Configurer Google Sign-In au démarrage
+// Le Web Client ID vient de la Firebase Console > Authentication > Sign-in method > Google
+const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "";
+if (GOOGLE_WEB_CLIENT_ID) {
+  configureGoogleSignIn(GOOGLE_WEB_CLIENT_ID);
+}
 
 export default function RootLayout() {
   const { user, isLoading } = useAuth();

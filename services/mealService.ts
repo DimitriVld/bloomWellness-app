@@ -23,21 +23,28 @@ export const calculateNutrition = (
   portionSize: number
 ): NutritionInfo => {
   const factor = portionSize / 100;
-  return {
+
+  // Valeurs de base (toujours présentes)
+  const nutrition: NutritionInfo = {
     calories: Math.round(nutritionPer100g.calories * factor),
     protein: Math.round(nutritionPer100g.protein * factor * 10) / 10,
     carbs: Math.round(nutritionPer100g.carbs * factor * 10) / 10,
     fat: Math.round(nutritionPer100g.fat * factor * 10) / 10,
-    fiber: nutritionPer100g.fiber
-      ? Math.round(nutritionPer100g.fiber * factor * 10) / 10
-      : undefined,
-    sugar: nutritionPer100g.sugar
-      ? Math.round(nutritionPer100g.sugar * factor * 10) / 10
-      : undefined,
-    sodium: nutritionPer100g.sodium
-      ? Math.round(nutritionPer100g.sodium * factor)
-      : undefined,
   };
+
+  // Valeurs optionnelles - on n'ajoute que si elles existent
+  // Firestore n'accepte pas les valeurs undefined
+  if (nutritionPer100g.fiber != null) {
+    nutrition.fiber = Math.round(nutritionPer100g.fiber * factor * 10) / 10;
+  }
+  if (nutritionPer100g.sugar != null) {
+    nutrition.sugar = Math.round(nutritionPer100g.sugar * factor * 10) / 10;
+  }
+  if (nutritionPer100g.sodium != null) {
+    nutrition.sodium = Math.round(nutritionPer100g.sodium * factor);
+  }
+
+  return nutrition;
 };
 
 export const saveMeal = async (

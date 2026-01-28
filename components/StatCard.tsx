@@ -6,10 +6,11 @@ interface StatCardProps {
   icon: string;
   value: string;
   label: string;
+  subLabel?: string;
   trend?: 'up' | 'down' | 'neutral';
 }
 
-const StatCard = ({ icon, value, label, trend }: StatCardProps) => {
+const StatCard = ({ icon, value, label, subLabel, trend }: StatCardProps) => {
   const getTrendIcon = () => {
     if (trend === 'up') return '↑';
     if (trend === 'down') return '↓';
@@ -32,6 +33,7 @@ const StatCard = ({ icon, value, label, trend }: StatCardProps) => {
         )}
       </View>
       <Text style={styles.label}>{label}</Text>
+      {subLabel && <Text style={styles.subLabel}>{subLabel}</Text>}
     </View>
   );
 };
@@ -64,6 +66,11 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 11,
     color: colors.gray,
+    marginTop: spacing.xxxs,
+  },
+  subLabel: {
+    fontSize: 10,
+    color: colors.primary,
     marginTop: spacing.xxxs,
   },
 });

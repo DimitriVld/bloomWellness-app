@@ -10,7 +10,7 @@ import {
   ViewStyle,
 } from "react-native";
 
-type ButtonVariant = "primary" | "outline" | "google" | "tertiary";
+type ButtonVariant = "primary" | "outline" | "google" | "apple" | "tertiary";
 
 type ButtonProps = {
   title: string;
@@ -60,7 +60,12 @@ const Button = ({
           borderWidth: 2,
           borderColor: colors.lightGray,
         };
-        case "tertiary":
+      case "apple":
+        return {
+          ...baseStyle,
+          backgroundColor: colors.black,
+        };
+      case "tertiary":
         return {
           ...baseStyle,
           backgroundColor: colors.tertiary,
@@ -77,6 +82,8 @@ const Button = ({
       case "outline":
       case "google":
         return { color: colors.black };
+      case "apple":
+        return { color: colors.white };
       case "tertiary":
         return { color: colors.white };
       default:
@@ -93,7 +100,7 @@ const Button = ({
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === "primary" ? colors.white : colors.primary}
+          color={variant === "primary" || variant === "apple" || variant === "tertiary" ? colors.white : colors.primary}
           size="small"
         />
       ) : (

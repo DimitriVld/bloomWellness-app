@@ -16,11 +16,16 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.dimitrivld.bloomWellness-app"
+      "bundleIdentifier": "com.dimitrivld.bloomWellness-app",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.dimitrivld.bloomWellnessapp"
     },
     "web": {
       "output": "static",
@@ -29,6 +34,20 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "plugins": [
+      "expo-apple-authentication",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.YOUR_IOS_CLIENT_ID"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d14c6c3e-fc49-485b-ac5d-8b806f786815"
+      }
     }
   }
 }

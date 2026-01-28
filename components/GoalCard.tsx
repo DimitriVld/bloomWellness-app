@@ -8,10 +8,11 @@ interface GoalCardProps {
   protein: number;
   carbs: number;
   fat: number;
+  water?: number;
   onEditPress?: () => void;
 }
 
-const GoalCard = ({ title, calories, protein, carbs, fat, onEditPress }: GoalCardProps) => {
+const GoalCard = ({ title, calories, protein, carbs, fat, water, onEditPress }: GoalCardProps) => {
   const formatNumber = (num: number) => {
     return num.toLocaleString('fr-FR');
   };
@@ -49,6 +50,15 @@ const GoalCard = ({ title, calories, protein, carbs, fat, onEditPress }: GoalCar
           <Text style={[styles.macroValue, { color: colors.blue }]}>{fat}g</Text>
           <Text style={styles.macroLabel}>Lipides</Text>
         </View>
+        {water && (
+          <View style={styles.macroItem}>
+            <Text style={styles.macroEmoji}>💧</Text>
+            <Text style={[styles.macroValue, { color: '#06B6D4' }]}>
+              {(water / 1000).toFixed(1)}L
+            </Text>
+            <Text style={styles.macroLabel}>Eau</Text>
+          </View>
+        )}
       </View>
     </View>
   );

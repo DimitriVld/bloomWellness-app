@@ -3,37 +3,25 @@ import MenuItem from '@/components/MenuItem';
 import ProfileHeader from '@/components/ProfileHeader';
 import StatCard from '@/components/StatCard';
 import useUserProfile from '@/hooks/useUserProfile';
+import useUserStats from '@/hooks/useUserStats';
 import { signOut } from '@/services/authService';
 import { colors } from '@/style/colors';
 import { spacing } from '@/style/spacing';
-import { router } from 'expo-router';
+import { DEFAULT_USER_GOALS } from '@/types/user';
+import { Href, router } from 'expo-router';
 import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles from './styles';
 
 const AccountScreen = () => {
   const insets = useSafeAreaInsets();
-  const { profile, isLoading } = useUserProfile();
+  const { profile, isLoading: profileLoading } = useUserProfile();
+  const { stats, isLoading: statsLoading } = useUserStats();
 
-  // Données mock (à remplacer plus tard)
-  const stats = {
-    streak: 12,
-    averageGoal: 84,
-  };
+  const isLoading = profileLoading || statsLoading;
 
-  const goals = {
-    calories: 2200,
-    protein: 130,
-    carbs: 280,
-    fat: 75,
-  };
-
-  const handleEditProfile = () => {
-    Alert.alert('Bientôt', 'Cette fonctionnalité arrive bientôt !');
-  };
-
-  const handleEditGoals = () => {
-    Alert.alert('Bientôt', 'Cette fonctionnalité arrive bientôt !');
+  const navigateTo = (path: string) => {
+    router.push(path as Href);
   };
 
   const handleSignOut = () => {
@@ -66,8 +54,14 @@ const AccountScreen = () => {
     );
   }
 
-  const displayName = profile?.displayName || profile?.email?.split('@')[0] || 'Utilisateur';
+  const displayName =
+    profile?.displayName ||
+    profile?.firstName ||
+    profile?.email?.split('@')[0] ||
+    'Utilisateur';
   const email = profile?.email || '';
+
+  const goals = profile?.goals || DEFAULT_USER_GOALS;
 
   return (
     <ScrollView
@@ -84,17 +78,29 @@ const AccountScreen = () => {
         name={displayName}
         email={email}
         avatarUrl={profile?.photoURL || undefined}
-        onEditPress={handleEditProfile}
+        onEditPress={() => navigateTo('/(tabs)/account/edit-profile')}
       />
 
-      {/* Stats Cards */}
+      {/* Stats Cards - DYNAMIQUES */}
       <View style={styles.statsRow}>
-        <StatCard icon="🔥" value={String(stats.streak)} label="Jours de streak" />
+        <StatCard
+          icon="🔥"
+          value={String(stats?.currentStreak || 0)}
+          label="Jours de streak"
+          subLabel={
+            stats?.longestStreak ? `Record: ${stats.longestStreak}` : undefined
+          }
+        />
         <View style={styles.statsSpacer} />
-        <StatCard icon="📊" value={`${stats.averageGoal}%`} label="Objectif moyen" />
+        <StatCard
+          icon="📊"
+          value={`${stats?.averageGoalPercentage || 0}%`}
+          label="Objectif moyen"
+          subLabel="7 derniers jours"
+        />
       </View>
 
-      {/* Goal Card */}
+      {/* Goal Card - DYNAMIQUE */}
       <View style={styles.goalCardContainer}>
         <GoalCard
           title="Objectif quotidien"
@@ -102,22 +108,53 @@ const AccountScreen = () => {
           protein={goals.protein}
           carbs={goals.carbs}
           fat={goals.fat}
-          onEditPress={handleEditGoals}
+          water={goals.water}
+          onEditPress={() => navigateTo('/(tabs)/account/edit-goals')}
         />
       </View>
 
       {/* Section Préférences */}
       <Text style={styles.sectionTitle}>PRÉFÉRENCES</Text>
-      <MenuItem icon="person-outline" label="Modifier le profil" onPress={handleEditProfile} />
-      <MenuItem icon="flag-outline" label="Objectifs" value={`${goals.calories} kcal`} onPress={handleEditGoals} />
-      <MenuItem icon="notifications-outline" label="Notifications" onPress={handleComingSoon} />
-      <MenuItem icon="moon-outline" label="Apparence" value="Auto" onPress={handleComingSoon} />
+      <MenuItem
+        icon="person-outline"
+        label="Modifier le profil"
+        onPress={() => navigateTo('/(tabs)/account/edit-profile')}
+      />
+      <MenuItem
+        icon="flag-outline"
+        label="Objectifs"
+        value={`${goals.calories} kcal`}
+        onPress={() => navigateTo('/(tabs)/account/edit-goals')}
+      />
+      <MenuItem
+        icon="notifications-outline"
+        label="Notifications"
+        onPress={() => navigateTo('/(tabs)/account/notifications')}
+      />
+      <MenuItem
+        icon="moon-outline"
+        label="Apparence"
+        value="Auto"
+        onPress={handleComingSoon}
+      />
 
       {/* Section Autres */}
       <Text style={styles.sectionTitle}>AUTRES</Text>
-      <MenuItem icon="help-circle-outline" label="Aide & Support" onPress={handleComingSoon} />
-      <MenuItem icon="document-text-outline" label="Conditions d'utilisation" onPress={handleComingSoon} />
-      <MenuItem icon="shield-checkmark-outline" label="Politique de confidentialité" onPress={handleComingSoon} />
+      <MenuItem
+        icon="help-circle-outline"
+        label="Aide & Support"
+        onPress={handleComingSoon}
+      />
+      <MenuItem
+        icon="document-text-outline"
+        label="Conditions d'utilisation"
+        onPress={handleComingSoon}
+      />
+      <MenuItem
+        icon="shield-checkmark-outline"
+        label="Politique de confidentialité"
+        onPress={handleComingSoon}
+      />
 
       {/* Déconnexion */}
       <View style={styles.logoutContainer}>
