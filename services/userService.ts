@@ -10,7 +10,6 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc,
   serverTimestamp,
 } from "firebase/firestore";
 
@@ -108,10 +107,12 @@ export const updateUserProfile = async (
     }
 
     const userRef = doc(db, USERS_COLLECTION, uid);
-    await updateDoc(userRef, {
+    // Utiliser setDoc avec merge pour créer le document s'il n'existe pas
+    await setDoc(userRef, {
+      uid,
       ...filteredUpdates,
       updatedAt: serverTimestamp(),
-    });
+    }, { merge: true });
     return { success: true, error: null };
   } catch (error: any) {
     console.error("Erreur mise à jour profil:", error);
@@ -125,11 +126,12 @@ export const updateUserGoals = async (
 ): Promise<{ success: boolean; error: string | null }> => {
   try {
     const userRef = doc(db, USERS_COLLECTION, uid);
-
-    await updateDoc(userRef, {
+    // Utiliser setDoc avec merge pour créer le document s'il n'existe pas
+    await setDoc(userRef, {
+      uid,
       goals,
       updatedAt: serverTimestamp(),
-    });
+    }, { merge: true });
     return { success: true, error: null };
   } catch (error: any) {
     console.error("Erreur mise à jour objectifs:", error);
@@ -147,10 +149,12 @@ export const updateNotificationSettings = async (
 ): Promise<{ success: boolean; error: string | null }> => {
   try {
     const userRef = doc(db, USERS_COLLECTION, uid);
-    await updateDoc(userRef, {
+    // Utiliser setDoc avec merge pour créer le document s'il n'existe pas
+    await setDoc(userRef, {
+      uid,
       notificationSettings: settings,
       updatedAt: serverTimestamp(),
-    });
+    }, { merge: true });
     return { success: true, error: null };
   } catch (error: any) {
     console.error("Erreur mise à jour notifications:", error);

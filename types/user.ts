@@ -7,6 +7,8 @@ export type ActivityLevel =
 
 export type WeightGoal = 'lose' | 'maintain' | 'gain';
 
+export type Gender = 'male' | 'female' | 'other';
+
 export interface UserGoals {
   calories: number; // ex: 2200
   protein: number; // ex: 130g
@@ -35,7 +37,7 @@ export interface UserProfile {
   weight?: number; // kg
   height?: number; // cm
   birthDate?: string; // YYYY-MM-DD
-  gender?: 'male' | 'female' | 'other';
+  gender?: Gender;
   activityLevel?: ActivityLevel;
   weightGoal?: WeightGoal;
 

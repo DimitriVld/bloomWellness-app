@@ -4,7 +4,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm run lint:*)",
       "Bash(npm install:*)",
-      "Bash(npx expo install:*)"
+      "Bash(npx expo install:*)",
+      "Bash(ls:*)"
     ]
   }
 }
